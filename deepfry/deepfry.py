@@ -28,7 +28,7 @@ class Deepfry(commands.Cog):
 		
 	@staticmethod
 	def _fry(imgLink):
-		path = urllib.parse.urlparse(a.url).path
+		path = urllib.parse.urlparse(imgLink.url).path
 		outputFile = none
 		for x in self.imagetypes:
 			if path.lower().endswith(x):
