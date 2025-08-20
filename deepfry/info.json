@@ -3,7 +3,7 @@
     "install_msg" : "Thanks for installing deepfry. Use `[p]deepfry`.",
     "name" : "Deepfry",
     "short" : "Deepfry images.",
-    "requirements" : ["pillow","ffmpeg"],
+    "requirements" : ["pillow","ffmpeg-python"],
     "description" : "Apply filters to an image to deepfry it. Supports frying images automatically as they are sent, the most recent image, a linked image, or an attached image. Run [p]deepfry to fry!",
     "tags" : ["fun", "deepfry", "fry"],
     "min_bot_version": "3.5.0.dev1",
