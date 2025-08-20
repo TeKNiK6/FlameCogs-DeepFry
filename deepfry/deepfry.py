@@ -29,12 +29,12 @@ class Deepfry(commands.Cog):
 	@staticmethod
 	def _fry(imgLink):
 		path = urllib.parse.urlparse(imgLink).path
-		outputFile = none
+		outputFile = None
 		for x in self.imagetypes:
 			if path.lower().endswith(x):
 				outputFile= "Temp." + x
 				break
-		if outputFile == none:
+		if outputFile == None:
 			raise ImageFindError(
 				f'Unsupported filetype'
 			)
