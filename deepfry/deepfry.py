@@ -54,7 +54,7 @@ class Deepfry(commands.Cog):
 		img = Image.open(outputFileFullPath)
 		imgBytes = BytesIO()
 		imgBytes.name = "temp." + fileExt
-		img.save(imgBytes)
+		img.save(imgBytes, fileExt)
 		imgBytes.seek(0)
 		tempDir.cleanup()
 		#img = img.convert('RGB')
