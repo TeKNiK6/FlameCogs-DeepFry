@@ -24,27 +24,23 @@ class Deepfry(commands.Cog):
 		self.bot = bot
 		self.config = Config.get_conf(self, identifier=7345167900)
 		self.config.register_guild(
-			fryChance = 0,
-			nukeChance = 0,
-			allowAllTypes = False
+			fryChance = 0
 		)
 		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp']
 		
 	async def _get_image(self, ctx, link: Union[discord.Member, str]):
 		"""Helper function to find an image."""
 		if ctx.guild:
-			allowAllTypes = await self.config.guild(ctx.message.guild).allowAllTypes()
 			filesize_limit = ctx.guild.filesize_limit
 		else:
-			allowAllTypes = False
 			filesize_limit = MAX_SIZE
+
 		if not ctx.message.attachments and not link:
 			async for msg in ctx.channel.history(limit=10):
 				for a in msg.attachments:
 					path = urllib.parse.urlparse(a.url).path
 					if (
 						any(path.lower().endswith(x) for x in self.imagetypes)
-						or any(path.lower().endswith(x) for x in self.videotypes)
 						or allowAllTypes
 					):
 						link = a.url
@@ -53,59 +49,30 @@ class Deepfry(commands.Cog):
 					break
 			if not link:
 				raise ImageFindError('Please provide an attachment.')
-		if isinstance(link, discord.Member): #member avatar
-			if discord.version_info.major == 1:
-				avatar = link.avatar_url_as(static_format="png")
-			else:
-				avatar = link.display_avatar.with_static_format("png")
-			# dpy will add a ?size= flag to the end, so for this one case we only need to check gif in
-			if ".gif" in str(avatar):
-				isgif = True
-			else:
-				isgif = False
-			data = await avatar.read()
-			img = Image.open(BytesIO(data))
-		elif link: #linked image
+	
+		if link: #linked image
 			path = urllib.parse.urlparse(link).path
-			if any(path.lower().endswith(x) for x in self.imagetypes):
-				isgif = False
-			elif any(path.lower().endswith(x) for x in self.videotypes) or allowAllTypes:
-				isgif = True
-			else:
+			if not any(path.lower().endswith(x) for x in self.imagetypes):
 				raise ImageFindError(
 					f'That does not look like an image of a supported filetype. Make sure you provide a direct link.'
 				)
-			async with aiohttp.ClientSession() as session:
-				try:
-					async with session.get(link) as response:
-						r = await response.read()
-						img = Image.open(BytesIO(r))
-				except (OSError, aiohttp.ClientError):
-					raise ImageFindError(
-						'An image could not be found. Make sure you provide a direct link.'
-					)
-		else: #attached image
-			path = urllib.parse.urlparse(ctx.message.attachments[0].url).path
-			if any(path.lower().endswith(x) for x in self.imagetypes):
-				isgif = False
-			elif any(path.lower().endswith(x) for x in self.videotypes) or allowAllTypes:
-				isgif = True
-			else:
-				raise ImageFindError(f'That does not look like an image of a supported filetype.')
-			if ctx.message.attachments[0].size > filesize_limit:
-				raise ImageFindError('That image is too large.')
-			temp_orig = BytesIO()
-			await ctx.message.attachments[0].save(temp_orig)
-			temp_orig.seek(0)
-			img = Image.open(temp_orig)
-		if max(img.size) > 3840:
-			raise ImageFindError('That image is too large.')
-		duration = None
-		if isgif and 'duration' in img.info:
-			duration = img.info['duration']
-		else:
-			img = img.convert('RGB')
-		return img, isgif, duration
+
+		# else: #attached image
+		# 	path = urllib.parse.urlparse(ctx.message.attachments[0].url).path
+		# 	if not any(path.lower().endswith(x) for x in self.imagetypes):
+		# 		raise ImageFindError(f'That does not look like an image of a supported filetype.')
+
+		# 	if ctx.message.attachments[0].size > filesize_limit:
+		# 		raise ImageFindError('That image is too large.')
+		# 	temp_orig = BytesIO()
+		# 	await ctx.message.attachments[0].save(temp_orig)
+		# 	temp_orig.seek(0)
+		# 	img = Image.open(temp_orig)
+		#if max(img.size) > 3840:
+			#raise ImageFindError('That image is too large.')
+		
+		#img = img.convert('RGB')
+		return link
 	
 	@commands.command(aliases=['df'])
 	@commands.bot_has_permissions(attach_files=True)
@@ -120,10 +87,8 @@ class Deepfry(commands.Cog):
 				img, isgif, duration = await self._get_image(ctx, link)
 			except ImageFindError as e:	
 				return await ctx.send(e)
-			if isgif:
-				task = functools.partial(self._videofry, img, duration)
-			else:
-				task = functools.partial(self._fry, img)
+
+			task = functools.partial(self._fry, img)
 			task = self.bot.loop.run_in_executor(None, task)
 			try:
 				image = await asyncio.wait_for(task, timeout=60)
@@ -144,7 +109,6 @@ class Deepfry(commands.Cog):
 		msg = (
 			'Allow all filetypes: {allowAllTypes}\n'
 			'Deepfry chance: {fryChance}\n'
-			'Nuke chance: {nukeChance}'
 		).format_map(cfg)
 		await ctx.send(f'```py\n{msg}```')
 	
