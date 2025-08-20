@@ -50,7 +50,7 @@ class Deepfry(commands.Cog):
 				)
 
 		img = Image.open(outputFileFullPath)
-		imgBytes = io.BytesIO()
+		imgBytes = BytesIO()
 		img.save(imgBytes)
 		imgBytes.seek(0)
 		tempDir.cleanup()
