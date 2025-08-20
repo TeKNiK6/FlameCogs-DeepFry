@@ -26,8 +26,8 @@ class Deepfry(commands.Cog):
 		)
 		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp']
 		
-	@staticmethod
-	def _fry(imgLink):
+	#@staticmethod
+	def _fry(self,imgLink):
 		path = urllib.parse.urlparse(imgLink).path
 		outputFile = None
 		for x in self.imagetypes:
