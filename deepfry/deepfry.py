@@ -51,6 +51,7 @@ class Deepfry(commands.Cog):
 
 		img = Image.open(outputFileFullPath)
 		imgBytes = BytesIO()
+		imgBytes.name = "temp.png"
 		img.save(imgBytes)
 		imgBytes.seek(0)
 		tempDir.cleanup()
