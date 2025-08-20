@@ -31,9 +31,11 @@ class Deepfry(commands.Cog):
 	def _fry(self,imgLink):
 		path = urllib.parse.urlparse(imgLink).path
 		outputFile = None
+		fileExt = None
 		for x in self.imagetypes:
 			if path.lower().endswith(x):
-				outputFile= "Temp." + x
+				fileExt = x
+				outputFile = "Temp." + fileExt
 				break
 		if outputFile == None:
 			raise ImageFindError(
@@ -51,7 +53,7 @@ class Deepfry(commands.Cog):
 
 		img = Image.open(outputFileFullPath)
 		imgBytes = BytesIO()
-		imgBytes.name = "temp.png"
+		imgBytes.name = "temp." + fileExt
 		img.save(imgBytes)
 		imgBytes.seek(0)
 		tempDir.cleanup()
