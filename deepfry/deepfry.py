@@ -50,9 +50,12 @@ class Deepfry(commands.Cog):
 				)
 
 		img = Image.open(outputFileFullPath)
+		imgBytes = io.BytesIO()
+		img.save(imgBytes)
+		imgBytes.seek(0)
 		tempDir.cleanup()
 		#img = img.convert('RGB')
-		return img
+		return imgBytes
 
 	async def _get_image(self, ctx, link: str):
 		"""Helper function to find an image."""
