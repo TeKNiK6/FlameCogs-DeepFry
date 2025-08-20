@@ -10,6 +10,7 @@ import asyncio
 import urllib
 import ffmpeg
 import tempfile
+import os
 
 MAX_SIZE = 10 * 1000 * 1000
 
@@ -51,14 +52,15 @@ class Deepfry(commands.Cog):
 					f"Error frying image - {e.stderr.decode('utf8')}"
 				)
 
-		img = Image.open(outputFileFullPath)
-		imgBytes = BytesIO()
-		imgBytes.name = "temp." + fileExt
-		img.save(imgBytes, fileExt)
-		imgBytes.seek(0)
-		tempDir.cleanup()
+		# img = Image.open(outputFileFullPath)
+		# imgBytes = BytesIO()
+		# imgBytes.name = "temp." + fileExt
+		# img.save(imgBytes, fileExt)
+		# imgBytes.seek(0)
+		# tempDir.cleanup()
 		#img = img.convert('RGB')
-		return imgBytes
+		pathFile = os.path.normpath(outputFileFullPath)
+		return pathFile
 
 	async def _get_image(self, ctx, link: str):
 		"""Helper function to find an image."""
