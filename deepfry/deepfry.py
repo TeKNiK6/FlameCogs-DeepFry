@@ -9,6 +9,7 @@ import functools
 import asyncio
 import urllib
 import ffmpeg
+import tempfile
 
 MAX_SIZE = 10 * 1000 * 1000
 
@@ -46,7 +47,7 @@ class Deepfry(commands.Cog):
 			raise ImageFindError(
 					f"Error frying image - {e.stderr.decode('utf8')}"
 				)
-				
+
 		img = Image.open(outputFileFullPath)
 		outputFileFullPath.cleanup()
 		#img = img.convert('RGB')
