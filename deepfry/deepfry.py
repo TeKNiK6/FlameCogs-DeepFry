@@ -28,7 +28,7 @@ class Deepfry(commands.Cog):
 		)
 		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp']
 		
-	async def _get_image(self, ctx, link: Union[discord.Member, str]):
+	async def _get_image(self, ctx, link: str):
 		"""Helper function to find an image."""
 		if ctx.guild:
 			filesize_limit = ctx.guild.filesize_limit
@@ -76,7 +76,7 @@ class Deepfry(commands.Cog):
 	
 	@commands.command(aliases=['df'])
 	@commands.bot_has_permissions(attach_files=True)
-	async def deepfry(self, ctx, link: Union[discord.Member, str]=None):
+	async def deepfry(self, ctx, link: str=None):
 		"""
 		Deepfries images.
 		
@@ -84,11 +84,11 @@ class Deepfry(commands.Cog):
 		"""
 		async with ctx.typing():
 			try:
-				img, isgif, duration = await self._get_image(ctx, link)
+				imgLink = await self._get_image(ctx, link)
 			except ImageFindError as e:	
 				return await ctx.send(e)
 
-			task = functools.partial(self._fry, img)
+			task = functools.partial(self._fry, imgLink)
 			task = self.bot.loop.run_in_executor(None, task)
 			try:
 				image = await asyncio.wait_for(task, timeout=60)
@@ -107,7 +107,6 @@ class Deepfry(commands.Cog):
 		await ctx.send_help()
 		cfg = await self.config.guild(ctx.guild).all()
 		msg = (
-			'Allow all filetypes: {allowAllTypes}\n'
 			'Deepfry chance: {fryChance}\n'
 		).format_map(cfg)
 		await ctx.send(f'```py\n{msg}```')
@@ -141,31 +140,6 @@ class Deepfry(commands.Cog):
 			else:
 				await ctx.send(f'1 out of every {str(value)} images will be fried.')
 
-	@deepfryset.command()	
-	async def allowalltypes(self, ctx, value: bool=None):
-		"""
-		Allow filetypes that have not been verified to be valid.
-		
-		Can cause errors if enabled, use at your own risk.
-		Defaults to False.
-		This value is server specific.
-		"""
-		if value is None:
-			v = await self.config.guild(ctx.guild).allowAllTypes()
-			if v:
-				await ctx.send('You are currently able to use unverified types.')
-			else:
-				await ctx.send('You are currently not able to use unverified types.')
-		else:
-			await self.config.guild(ctx.guild).allowAllTypes.set(value)
-			if value:
-				await ctx.send(
-					'You will now be able to use unverified types.\n'
-					'This mode can cause errors. Use at your own risk.'
-				)
-			else:
-				await ctx.send('You will no longer be able to use unverified types.')
-
 	async def red_delete_data_for_user(self, **kwargs):
 		"""Nothing to delete."""
 		return
@@ -187,57 +161,30 @@ class Deepfry(commands.Cog):
 		if msg.attachments[0].size > msg.guild.filesize_limit:
 			return
 		path = urllib.parse.urlparse(msg.attachments[0].url).path
-		if any(path.lower().endswith(x) for x in self.imagetypes):
-			isgif = False
-		elif any(path.lower().endswith(x) for x in self.videotypes):
-			isgif = True
-		else:
+		if not any(path.lower().endswith(x) for x in self.imagetypes):
 			return
 		#GUILD SETTINGS
 		vfry = await self.config.guild(msg.guild).fryChance()
-		vnuke = await self.config.guild(msg.guild).nukeChance()
-		#NUKE
-		if vnuke != 0:
-			l = randint(1, vnuke)
-			if l == 1:
-				temp = BytesIO()
-				await msg.attachments[0].save(temp)
-				temp.seek(0)
-				img = Image.open(temp)
-				duration = None
-				if isgif:
-					if 'duration' in img.info:
-						duration = img.info['duration']
-					task = functools.partial(self._videonuke, img, duration)
-				else:
-					img = img.convert('RGB')
-					task = functools.partial(self._nuke, img)
-				task = self.bot.loop.run_in_executor(None, task)
-				try:
-					image = await asyncio.wait_for(task, timeout=60)
-				except asyncio.TimeoutError:
-					return
-				await msg.channel.send(file=discord.File(image))
-				return #prevent a nuke and a fry
+		
 		#FRY
-		if vfry != 0:
-			l = randint(1, vfry)
-			if l == 1:
-				temp = BytesIO()
-				await msg.attachments[0].save(temp)
-				temp.seek(0)
-				img = Image.open(temp)
-				duration = None
-				if isgif:
-					if 'duration' in img.info:
-						duration = img.info['duration']
-					task = functools.partial(self._videofry, img, duration)
-				else:
-					img = img.convert('RGB')
-					task = functools.partial(self._fry, img)
-				task = self.bot.loop.run_in_executor(None, task)
-				try:
-					image = await asyncio.wait_for(task, timeout=60)
-				except asyncio.TimeoutError:
-					return
-				await msg.channel.send(file=discord.File(image))
+		# if vfry != 0:
+		# 	l = randint(1, vfry)
+		# 	if l == 1:
+		# 		temp = BytesIO()
+		# 		await msg.attachments[0].save(temp)
+		# 		temp.seek(0)
+		# 		img = Image.open(temp)
+		# 		duration = None
+		# 		if isgif:
+		# 			if 'duration' in img.info:
+		# 				duration = img.info['duration']
+		# 			task = functools.partial(self._videofry, img, duration)
+		# 		else:
+		# 			img = img.convert('RGB')
+		# 			task = functools.partial(self._fry, img)
+		# 		task = self.bot.loop.run_in_executor(None, task)
+		# 		try:
+		# 			image = await asyncio.wait_for(task, timeout=60)
+		# 		except asyncio.TimeoutError:
+		# 			return
+		# 		await msg.channel.send(file=discord.File(image))
