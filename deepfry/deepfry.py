@@ -1,18 +1,16 @@
 import discord
-import aiohttp
 from redbot.core import commands
 from redbot.core import Config
 from redbot.core import checks
-from PIL import Image, ImageEnhance
+from PIL import Image
 from random import randint
 from io import BytesIO
 import functools
 import asyncio
 import urllib
-from typing import Union
 import ffmpeg
 
-MAX_SIZE = 8 * 1000 * 1000
+MAX_SIZE = 10 * 1000 * 1000
 
 class ImageFindError(Exception):
 	"""Generic error for the _get_image function."""
@@ -36,12 +34,12 @@ class Deepfry(commands.Cog):
 			if path.lower().endswith(x):
 				outputFile= "Temp." + x
 				break
-		if outputFile = none:
+		if outputFile == none:
 			raise ImageFindError(
 				f'Unsupported filetype'
 			)
 		try:
-    ffmpeg.input(imgLink).output(outputFile, vf='scale=360:-1:flags=lanczos,eq=saturation=2.547872526587171:contrast=1.663945577845754:gamma_r=1.6468562525223558:gamma_g=1.982674184755574:gamma_b=1.884297295698892,noise=alls=15.554466360495802:allf=t,unsharp=5:5:3.25:5:5:3,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse').run()
+    		ffmpeg.input(imgLink).output(outputFile, vf='scale=360:-1:flags=lanczos,eq=saturation=2.547872526587171:contrast=1.663945577845754:gamma_r=1.6468562525223558:gamma_g=1.982674184755574:gamma_b=1.884297295698892,noise=alls=15.554466360495802:allf=t,unsharp=5:5:3.25:5:5:3,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse').run()
 		except ffmpeg.Error as e:
     		raise ImageFindError(
 					f'Error frying image.'
