@@ -52,7 +52,7 @@ class Deepfry(commands.Cog):
 		outputFileFullPath = tmpPath + "/" + outputFile
 
 		try:
-			ffmpeg.input(imgLink).output(outputFileFullPath, vf='scale=360:-1:flags=lanczos,eq=saturation=2.547872526587171:contrast=1.663945577845754:gamma_r=1.6468562525223558:gamma_g=1.982674184755574:gamma_b=1.884297295698892,noise=alls=15.554466360495802:allf=t,unsharp=5:5:3.25:5:5:3,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse').run(capture_stderr=True)
+			ffmpeg.input(imgLink).output(outputFileFullPath, vf='scale=360:-1:flags=lanczos,eq=saturation=2.547872526587171:contrast=1.663945577845754:gamma_r=1.6468562525223558:gamma_g=1.982674184755574:gamma_b=1.884297295698892,noise=alls=15.554466360495802:allf=t,unsharp=5:5:3.25:5:5:3,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse').overwrite_output().run(capture_stderr=True)
 		except ffmpeg.Error as e:
 			raise ImageFindError(
 					f"Error frying image - {e.stderr.decode('utf8')}"
