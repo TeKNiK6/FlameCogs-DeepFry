@@ -1,11 +1,11 @@
 {
     "author" : ["Flame442"],
-    "install_msg" : "Thanks for installing deepfry. Use `[p]deepfry` or `[p]nuke`.",
+    "install_msg" : "Thanks for installing deepfry. Use `[p]deepfry`.",
     "name" : "Deepfry",
-    "short" : "Deepfry or nuke images.",
-    "requirements" : ["pillow"],
-    "description" : "Apply filters to an image to deepfry or nuke it. Supports frying images automatically as they are sent, the most recent image, a linked image, an attached image, and profile pictures. Run [p]deepfry and [p]nuke to fry!",
-    "tags" : ["fun", "deepfry", "nuke", "fry"],
+    "short" : "Deepfry images.",
+    "requirements" : ["pillow","ffmpeg"],
+    "description" : "Apply filters to an image to deepfry it. Supports frying images automatically as they are sent, the most recent image, a linked image, or an attached image. Run [p]deepfry to fry!",
+    "tags" : ["fun", "deepfry", "fry"],
     "min_bot_version": "3.5.0.dev1",
     "min_python_version": [3, 6, 0],
     "end_user_data_statement": "This cog does not store user data."
