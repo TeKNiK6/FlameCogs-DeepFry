@@ -28,8 +28,7 @@ class Deepfry(commands.Cog):
 			nukeChance = 0,
 			allowAllTypes = False
 		)
-		self.imagetypes = ['png', 'jpg', 'jpeg']
-		self.videotypes = ['gif', 'webp']
+		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp']
 		
 	async def _get_image(self, ctx, link: Union[discord.Member, str]):
 		"""Helper function to find an image."""
@@ -135,33 +134,6 @@ class Deepfry(commands.Cog):
 			except discord.errors.HTTPException:
 				return await ctx.send('That image is too large.')
 
-	@commands.command()
-	@commands.bot_has_permissions(attach_files=True)
-	async def nuke(self, ctx, link: Union[discord.Member, str]=None):
-		"""
-		Demolishes images.
-		
-		The optional parameter "link" can be either a member or a **direct link** to an image.
-		"""
-		async with ctx.typing():
-			try:
-				img, isgif, duration = await self._get_image(ctx, link)
-			except ImageFindError as e:	
-				return await ctx.send(e)
-			if isgif:
-				task = functools.partial(self._videonuke, img, duration)
-			else:
-				task = functools.partial(self._nuke, img)
-			task = self.bot.loop.run_in_executor(None, task)
-			try:
-				image = await asyncio.wait_for(task, timeout=60)
-			except asyncio.TimeoutError:
-				return await ctx.send('The image took too long to process.')
-			try:
-				await ctx.send(file=discord.File(image))
-			except discord.errors.HTTPException:
-				return await ctx.send('That image is too large.')
-	
 	@commands.guild_only()
 	@checks.guildowner()
 	@commands.group(invoke_without_command=True)
@@ -204,35 +176,6 @@ class Deepfry(commands.Cog):
 				await ctx.send('All images will be fried.')
 			else:
 				await ctx.send(f'1 out of every {str(value)} images will be fried.')
-
-	@deepfryset.command()	
-	async def nukechance(self, ctx, value: int=None):
-		"""
-		Change the rate images are automatically nuked.
-		
-		Images will have a 1/<value> chance to be nuked.
-		Higher values cause less often nukes.
-		Set to 0 to disable.
-		This value is server specific.
-		"""
-		if value is None:
-			v = await self.config.guild(ctx.message.guild).nukeChance()
-			if v == 0:
-				await ctx.send('Autonuking is currently disabled.')
-			elif v == 1:
-				await ctx.send('All images are being nuked.')
-			else:
-				await ctx.send(f'1 out of every {str(v)} images are being nuked.')
-		else:
-			if value < 0:
-				return await ctx.send('Value cannot be less than 0.')
-			await self.config.guild(ctx.guild).nukeChance.set(value)
-			if value == 0:
-				await ctx.send('Autonuking is now disabled.')
-			elif value == 1:
-				await ctx.send('All images will be nuked.')
-			else:
-				await ctx.send(f'1 out of every {str(value)} images will be nuked.')
 
 	@deepfryset.command()	
 	async def allowalltypes(self, ctx, value: bool=None):
