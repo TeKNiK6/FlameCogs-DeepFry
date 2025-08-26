@@ -26,7 +26,7 @@ class Deepfry(commands.Cog):
 		self.config.register_guild(
 			fryChance = 0
 		)
-		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp']
+		self.imagetypes = ['png', 'jpg', 'jpeg','gif', 'webp', 'mp4']
 		
 	#@staticmethod
 	def _fry(self,imgLink):
